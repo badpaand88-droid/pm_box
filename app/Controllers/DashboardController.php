@@ -29,6 +29,9 @@ class DashboardController extends BaseController
         // Get unread notifications count
         $unreadNotifications = $notificationModel->getUnreadCount($user['id']);
         
+        // Get team workload
+        $teamWorkload = $taskModel->getTeamWorkload();
+        
         // Statistics
         $stats = [
             'total_projects' => count($projects),
@@ -41,7 +44,8 @@ class DashboardController extends BaseController
             'projects' => array_slice($projects, 0, 5),
             'overdue_tasks' => array_slice($overdueTasks, 0, 5),
             'stats' => $stats,
-            'unread_notifications' => $unreadNotifications
+            'unread_notifications' => $unreadNotifications,
+            'team_workload' => $teamWorkload
         ]);
     }
 }

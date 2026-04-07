@@ -77,4 +77,59 @@ class Notification extends BaseModel
             );
         }
     }
+    
+    /**
+     * Notify about deadline tomorrow
+     */
+    public function notifyDeadlineTomorrow(): void
+    {
+        $taskModel = new Task();
+        $dueTasks = $taskModel->getDueTomorrow();
+        
+        foreach ($dueTasks as $task) {
+            $this->createNotification(
+                (int)$task['assigned_to'],
+                'deadline_tomorrow',
+                'Deadline Tomorrow',
+                "Task '{$task['title']}' is due tomorrow in project: {$task['project_name']}",
+                "/tasks/{$task['id']}"
+            );
+        }
+    }
+    
+    /**
+     * Notify when a dependency is resolved (task unblocked)
+     */
+    public function notifyDependencyResolved(int $taskId, int $resolvedByTaskId): void
+    {
+        $task = (new Task())->getWithDetails($taskId);
+        $resolvedTask = (new Task())->getWithDetails($resolvedByTaskId);
+        
+        // Notify assignee of the blocked task
+        if ($task['assigned_to']) {
+            $this->createNotification(
+                (int)$task['assigned_to'],
+                'dependency_resolved',
+                'Task Unblocked',
+                "Task '{$resolvedTask['title']}' is now complete. Task '{$task['title']}' can now be started.",
+                "/tasks/$taskId"
+            );
+        }
+    }
+    
+    /**
+     * Check and notify for newly unblocked tasks
+     */
+    public function checkAndNotifyUnblockedTasks(int $completedTaskId): void
+    {
+        $depModel = new TaskDependency();
+        $dependents = $depModel->getDependents($completedTaskId);
+        
+        foreach ($dependents as $dependent) {
+            $canStart = $depModel->canStartTask((int)$dependent['id']);
+            if ($canStart['can_start']) {
+                $this->notifyDependencyResolved((int)$dependent['id'], $completedTaskId);
+            }
+        }
+    }
 }

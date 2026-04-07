@@ -1,6 +1,17 @@
 <?php
 
 return [
+    'categories' => "CREATE TABLE IF NOT EXISTS categories (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        color VARCHAR(7) DEFAULT '#64748b',
+        project_id INT DEFAULT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY unique_project_category (project_id, name),
+        FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+        INDEX idx_project_id (project_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
     'projects' => "CREATE TABLE IF NOT EXISTS projects (
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
@@ -32,6 +43,8 @@ return [
     'tasks' => "CREATE TABLE IF NOT EXISTS tasks (
         id INT AUTO_INCREMENT PRIMARY KEY,
         project_id INT NOT NULL,
+        parent_task_id INT DEFAULT NULL,
+        category_id INT DEFAULT NULL,
         title VARCHAR(255) NOT NULL,
         description TEXT,
         status ENUM('todo', 'in_progress', 'review', 'done', 'closed') DEFAULT 'todo',
@@ -39,19 +52,38 @@ return [
         assigned_to INT DEFAULT NULL,
         created_by INT NOT NULL,
         due_date DATE DEFAULT NULL,
+        start_date DATE DEFAULT NULL,
+        duration_days INT DEFAULT NULL,
         estimated_hours DECIMAL(5,2) DEFAULT NULL,
         actual_hours DECIMAL(5,2) DEFAULT NULL,
+        links JSON DEFAULT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         completed_at TIMESTAMP NULL DEFAULT NULL,
         FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+        FOREIGN KEY (parent_task_id) REFERENCES tasks(id) ON DELETE SET NULL,
+        FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL,
         FOREIGN KEY (assigned_to) REFERENCES users(id) ON DELETE SET NULL,
         FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE,
         INDEX idx_project_id (project_id),
+        INDEX idx_parent_task_id (parent_task_id),
+        INDEX idx_category_id (category_id),
         INDEX idx_status (status),
         INDEX idx_priority (priority),
         INDEX idx_assigned_to (assigned_to),
         INDEX idx_due_date (due_date)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
+    'task_dependencies' => "CREATE TABLE IF NOT EXISTS task_dependencies (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        task_id INT NOT NULL,
+        depends_on_task_id INT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY unique_dependency (task_id, depends_on_task_id),
+        FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE,
+        FOREIGN KEY (depends_on_task_id) REFERENCES tasks(id) ON DELETE CASCADE,
+        INDEX idx_task_id (task_id),
+        INDEX idx_depends_on (depends_on_task_id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
     'comments' => "CREATE TABLE IF NOT EXISTS comments (
