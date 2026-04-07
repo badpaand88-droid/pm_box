@@ -18,6 +18,40 @@ ob_start();
             <div class="stat-value"><?= $unread_notifications ?></div>
             <div class="stat-label">Unread Notifications</div>
         </div>
+        <div class="stat-card">
+            <div class="stat-value"><a href="/export" style="color: inherit;">📥 Экспорт</a></div>
+            <div class="stat-label">Excel Export</div>
+        </div>
+    </div>
+    
+    <!-- Team Workload Chart -->
+    <div class="dashboard-section" style="margin-top: 1.5rem;">
+        <div class="section-header">
+            <h2>Загрузка команды</h2>
+        </div>
+        <div class="workload-chart" style="background: var(--surface); padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow);">
+            <?php if (!empty($team_workload)): ?>
+            <div class="workload-bars" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <?php foreach ($team_workload as $member): 
+                    $tasks = (int)$member['active_tasks'];
+                    $color = $tasks <= 5 ? '#22c55e' : ($tasks <= 7 ? '#f59e0b' : '#ef4444');
+                    $width = min($tasks * 10, 100);
+                ?>
+                <div class="workload-item">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                        <span style="font-weight: 500;"><?= htmlspecialchars($member['full_name']) ?></span>
+                        <span style="color: var(--text-secondary);"><?= $tasks ?> задач</span>
+                    </div>
+                    <div style="background: var(--background); border-radius: var(--radius); height: 24px; overflow: hidden;">
+                        <div style="background: <?= $color ?>; width: <?= $width ?>%; height: 100%; transition: width 0.3s;"></div>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            <?php else: ?>
+            <p class="empty-state">Нет данных о загрузке команды</p>
+            <?php endif; ?>
+        </div>
     </div>
     
     <div class="dashboard-grid">

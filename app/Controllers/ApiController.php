@@ -88,4 +88,16 @@ class ApiController extends BaseController
         
         $this->json(['stats' => $taskCounts]);
     }
+    
+    public function teamWorkload(): void
+    {
+        $this->requireAuth();
+        
+        $projectId = $_GET['project_id'] ?? null;
+        
+        $taskModel = new Task();
+        $workload = $taskModel->getTeamWorkload($projectId ? (int)$projectId : null);
+        
+        $this->json(['workload' => $workload]);
+    }
 }

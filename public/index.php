@@ -93,12 +93,17 @@ $router->post('/tasks/:id/update', 'TaskController@update');
 $router->post('/tasks/:id/delete', 'TaskController@delete');
 $router->post('/tasks/:id/comment', 'TaskController@addComment');
 
+// Export routes
+$router->get('/export', 'ExportController@index');
+$router->post('/export/excel', 'ExportController@toExcel');
+
 // API routes
 $router->get('/api/notifications', 'ApiController@notifications');
 $router->post('/api/notifications/:id/read', 'ApiController@markNotificationRead');
 $router->post('/api/notifications/read-all', 'ApiController@markAllNotificationsRead');
 $router->get('/api/search', 'ApiController@search');
 $router->get('/api/projects/:id/stats', 'ApiController@taskStats');
+$router->get('/api/team/workload', 'ApiController@teamWorkload');
 
 // Default redirect to dashboard or login
 $router->get('/', function() {
