@@ -1,0 +1,26 @@
+{
+    "name": "badpaand88/pm_box",
+    "description": "Lightweight project management system (Jira alternative) on pure PHP",
+    "type": "project",
+    "require": {
+        "php": ">=8.2",
+        "ext-pdo": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "phpoffice/phpspreadsheet": "^1.29"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "@php -r \"if (!file_exists('.env')) copy('.env.example', '.env');\""
+        ]
+    }
+}
